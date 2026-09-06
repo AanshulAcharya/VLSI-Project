@@ -1,0 +1,436 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Idea to Chip — Understanding the Complete VLSI Design Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1317;
+    --surface:#161C22;
+    --surface-raised:#1C242B;
+    --ink:#E7E9E7;
+    --ink-dim:#9AA5AC;
+    --rule:#2A333B;
+    --copper:#C97C3D;
+    --copper-dim:#8C5A2E;
+    --gold:#D8B573;
+    --die:#3E5C63;
+    --radius:2px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--copper); color:#0F1317; }
+
+  a{ color:var(--copper); }
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 28px;
+  }
+
+  /* ---------- Header ---------- */
+  header.site{
+    border-bottom:1px solid var(--rule);
+    background:
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
+  }
+  .site-bar{
+    max-width:760px;
+    margin:0 auto;
+    padding:22px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    letter-spacing:0.02em;
+  }
+  .site-bar .mark{
+    color:var(--ink);
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .mark .die{
+    width:14px; height:14px;
+    background:var(--copper);
+    display:inline-block;
+    position:relative;
+    border-radius:1px;
+  }
+  .mark .die::before{
+    content:"";
+    position:absolute; inset:4px;
+    background:var(--bg);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:88px 0 64px;
+    position:relative;
+  }
+  .hero .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--copper);
+    margin:0 0 18px;
+  }
+  .hero h1{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:clamp(2.1rem, 5vw, 3.2rem);
+    line-height:1.1;
+    letter-spacing:-0.01em;
+    margin:0 0 22px;
+    max-width:14ch;
+  }
+  .hero p.lede{
+    font-size:1.14rem;
+    color:var(--ink-dim);
+    max-width:56ch;
+    margin:0 0 30px;
+  }
+  .hero .meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  .hero .meta span{ color:var(--gold); }
+
+  .wafer{
+    margin-top:56px;
+    border:1px solid var(--rule);
+    background:var(--surface);
+    padding:22px 24px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:14px;
+    overflow-x:auto;
+  }
+  .wafer .cell{
+    border:1px solid var(--rule);
+    padding:10px 8px;
+    text-align:center;
+    color:var(--ink);
+    background:var(--surface-raised);
+  }
+  .wafer .cell b{ display:block; color:var(--copper); font-size:15px; margin-bottom:2px; }
+
+  /* ---------- Article body ---------- */
+  article{ padding:10px 0 60px; }
+
+  .intro{
+    font-size:1.05rem;
+    color:var(--ink-dim);
+    border-left:2px solid var(--copper-dim);
+    padding-left:20px;
+    margin:0 0 58px;
+  }
+  .intro strong{ color:var(--ink); font-weight:600; }
+
+  .stage{
+    padding:44px 0;
+    border-top:1px solid var(--rule);
+    display:grid;
+    grid-template-columns:64px 1fr;
+    gap:24px;
+  }
+  .stage:first-of-type{ border-top:none; }
+
+  .stage .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--copper);
+    padding-top:4px;
+  }
+  .stage .num em{
+    display:block;
+    font-style:normal;
+    font-size:26px;
+    color:var(--ink);
+    font-weight:600;
+    line-height:1;
+    margin-bottom:6px;
+  }
+
+  .stage h2{
+    font-size:1.4rem;
+    font-weight:600;
+    margin:0 0 6px;
+    letter-spacing:-0.005em;
+  }
+  .stage .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--die);
+    background:rgba(62,92,99,0.15);
+    border:1px solid rgba(62,92,99,0.4);
+    padding:3px 8px;
+    border-radius:3px;
+    display:inline-block;
+    margin-bottom:16px;
+  }
+  .stage p{ margin:0 0 14px; color:var(--ink); }
+  .stage p.sub{ color:var(--ink-dim); }
+
+  .stage ul{
+    margin:14px 0 0;
+    padding-left:20px;
+    color:var(--ink-dim);
+  }
+  .stage ul li{ margin-bottom:8px; }
+  .stage ul li b{ color:var(--ink); font-weight:600; }
+
+  .callout{
+    margin-top:18px;
+    padding:14px 16px;
+    background:var(--surface);
+    border:1px solid var(--rule);
+    border-left:2px solid var(--gold);
+    font-size:0.92rem;
+    color:var(--ink-dim);
+  }
+  .callout b{ color:var(--gold); font-weight:600; }
+
+  /* ---------- Closing ---------- */
+  .closing{
+    border-top:1px solid var(--rule);
+    padding:52px 0 20px;
+  }
+  .closing h2{ font-size:1.5rem; margin:0 0 14px; }
+  .closing p{ color:var(--ink-dim); max-width:60ch; }
+
+  .flow-line{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-dim);
+    margin:26px 0 0;
+    padding:16px;
+    border:1px dashed var(--rule);
+  }
+  .flow-line span{ color:var(--ink); }
+  .flow-line .sep{ color:var(--copper-dim); }
+
+  footer.site{
+    border-top:1px solid var(--rule);
+    padding:26px 0 50px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-dim);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  @media (max-width:560px){
+    .stage{ grid-template-columns:1fr; }
+    .stage .num{ display:flex; align-items:baseline; gap:10px; }
+    .stage .num em{ margin-bottom:0; }
+    .wafer{ grid-template-columns:repeat(2,1fr); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="site-bar">
+    <div class="mark"><span class="die"></span> The Silicon Notebook</div>
+    <div>VLSI &amp; Chip Design Journal</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow">Semiconductor engineering · Field notes</p>
+    <h1>From idea to chip</h1>
+    <p class="lede">Every processor, sensor, and controller you've ever touched went through the same disciplined pipeline before it became a piece of silicon. Here's how a raw idea turns into a working chip, stage by stage.</p>
+    <div class="meta">
+      <span>10 stages</span>
+      <span>~14 min read</span>
+      <span>RTL → GDSII → Silicon</span>
+    </div>
+
+    <div class="wafer">
+      <div class="cell"><b>90%</b>engineer time in verification</div>
+      <div class="cell"><b>10+</b>weeks typical tapeout cycle</div>
+      <div class="cell"><b>nm</b>process node scale</div>
+      <div class="cell"><b>1000s</b>of design rule checks</div>
+      <div class="cell"><b>1</b>shot at the mask set</div>
+    </div>
+  </section>
+
+  <article>
+    <p class="intro"><strong>VLSI</strong> — Very Large Scale Integration — is the process of packing millions to billions of transistors onto a single piece of silicon. Getting from a product idea to a fabricated, working chip is not one leap but a long relay race between abstraction layers: an idea becomes a specification, a specification becomes logic, logic becomes geometry, and geometry becomes silicon. Miss a handoff and the whole chip can fail — so each stage exists to catch a different class of mistake before it becomes permanent.</p>
+
+    <div class="stage">
+      <div class="num"><em>01</em>SPEC</div>
+      <div>
+        <span class="tag">System level</span>
+        <h2>Specification &amp; architecture</h2>
+        <p>Every chip starts as a set of requirements, not a schematic: what the chip must do, how fast, at what power budget, and at what cost. Architects translate this into a high-level plan — the number of cores or blocks, the memory hierarchy, the buses that connect everything, and the interfaces to the outside world.</p>
+        <p class="sub">Decisions made here are the hardest to undo later, since they set the ceiling on performance, power, and area for everything downstream.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>02</em>RTL</div>
+      <div>
+        <span class="tag">Front end</span>
+        <h2>RTL design</h2>
+        <p>The architecture is written as hardware description language — usually Verilog, SystemVerilog, or VHDL — at the Register Transfer Level. RTL describes how data moves between registers on every clock edge, which is the language that both simulators and synthesis tools understand.</p>
+        <ul>
+          <li><b>Behavioral intent</b> — what the block computes, expressed as logic and state machines.</li>
+          <li><b>Modularity</b> — the design is split into blocks that a team can own, verify, and reuse independently.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>03</em>VERIF</div>
+      <div>
+        <span class="tag">Front end</span>
+        <h2>Functional verification</h2>
+        <p>Before a single transistor is placed, the RTL is checked exhaustively against its intended behavior. This is where the majority of engineering hours on a chip project actually go, because a functional bug caught here costs a re-simulation; caught after fabrication, it costs a re-spin.</p>
+        <ul>
+          <li><b>Testbenches &amp; UVM</b> — automated environments that drive stimulus and check responses.</li>
+          <li><b>Simulation</b> — cycle-accurate execution of the RTL against test scenarios.</li>
+          <li><b>Formal verification</b> — mathematical proof that certain properties can never be violated.</li>
+        </ul>
+        <div class="callout"><b>Why it dominates schedules —</b> a single missed corner case in a cache-coherency protocol or an arithmetic unit can silently corrupt data for years in the field, so verification closure is treated as seriously as the design itself.</div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>04</em>SYN</div>
+      <div>
+        <span class="tag">Front end → back end</span>
+        <h2>Logic synthesis</h2>
+        <p>A synthesis tool translates verified RTL into a gate-level netlist — a wiring diagram made of standard cells (AND, OR, flip-flops, muxes) from the target manufacturing library. The tool optimizes this mapping against constraints for timing, area, and power set by the design team.</p>
+        <p class="sub">The output is functionally equivalent to the RTL, but now expressed in the physical vocabulary the foundry's cells actually support.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>05</em>DFT</div>
+      <div>
+        <span class="tag">Back end</span>
+        <h2>Design for testability</h2>
+        <p>A chip that can't be tested after manufacturing is a chip nobody can trust. DFT inserts extra structures — scan chains, built-in self-test logic, boundary scan — into the netlist so that every finished die can be checked on a production tester in seconds, not hours.</p>
+        <ul>
+          <li><b>Scan chains</b> — reconfigure flip-flops into shift registers to control and observe internal state.</li>
+          <li><b>ATPG</b> — automatic test pattern generation creates the patterns used to catch manufacturing defects.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>06</em>P&amp;R</div>
+      <div>
+        <span class="tag">Back end</span>
+        <h2>Physical design</h2>
+        <p>This is where the netlist becomes real geometry on silicon, generally worked through in this order:</p>
+        <ul>
+          <li><b>Floorplanning</b> — deciding where each major block, memory, and I/O pad sits on the die.</li>
+          <li><b>Placement</b> — positioning every individual standard cell within its block.</li>
+          <li><b>Clock tree synthesis</b> — building a balanced clock network so the signal arrives at every register at nearly the same instant.</li>
+          <li><b>Routing</b> — drawing the metal interconnect that wires every cell together across multiple metal layers.</li>
+        </ul>
+        <p class="sub">The result is a fully realized layout, typically handed off as GDSII — the standard geometric format the foundry consumes.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>07</em>STA</div>
+      <div>
+        <span class="tag">Back end</span>
+        <h2>Static timing analysis</h2>
+        <p>Once wires have real, physical lengths, delays are no longer estimates. STA walks every path in the design and checks that data still arrives at each register in time for the next clock edge, across worst-case voltage, temperature, and manufacturing variation.</p>
+        <p class="sub">A design that fails timing doesn't fail loudly — it just computes the wrong answer intermittently, which is why timing closure is treated as a hard gate before tape-out.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>08</em>PV</div>
+      <div>
+        <span class="tag">Back end</span>
+        <h2>Physical verification</h2>
+        <p>The finished layout is checked against the foundry's manufacturing rulebook and against the original design intent:</p>
+        <ul>
+          <li><b>DRC</b> — design rule check, confirming every shape is manufacturable at this process node.</li>
+          <li><b>LVS</b> — layout-versus-schematic, confirming the geometry matches the intended circuit exactly.</li>
+          <li><b>ERC</b> — electrical rule check, catching issues like floating inputs or shorted supplies.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>09</em>FAB</div>
+      <div>
+        <span class="tag">Manufacturing</span>
+        <h2>Tape-out &amp; fabrication</h2>
+        <p>"Tape-out" is the moment the finished GDSII file is signed off and sent to the foundry. The foundry converts each layer of the design into a photomask, then builds the chip through hundreds of steps of photolithography, etching, and material deposition on a silicon wafer — a process that runs for weeks, layer by layer.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="num"><em>10</em>TEST</div>
+      <div>
+        <span class="tag">Manufacturing</span>
+        <h2>Packaging &amp; test</h2>
+        <p>Finished wafers are diced into individual dies. Working dies are encapsulated in a package that protects the silicon and connects it to the outside world via bond wires or bumps, then run through the test patterns generated back in the DFT stage to sort good parts from defective ones before they ever reach a board.</p>
+      </div>
+    </div>
+
+  </article>
+
+  <section class="closing">
+    <h2>The flow, end to end</h2>
+    <p>No stage in this pipeline stands alone — a decision in floorplanning can reopen a synthesis constraint, and a timing failure can send a team back to RTL. Chip design is iterative, not linear, even though the handoffs always move in the same direction.</p>
+    <div class="flow-line">
+      <span>Spec</span><span class="sep">→</span><span>RTL</span><span class="sep">→</span><span>Verification</span><span class="sep">→</span><span>Synthesis</span><span class="sep">→</span><span>DFT</span><span class="sep">→</span><span>Floorplan</span><span class="sep">→</span><span>Place</span><span class="sep">→</span><span>CTS</span><span class="sep">→</span><span>Route</span><span class="sep">→</span><span>STA</span><span class="sep">→</span><span>DRC/LVS</span><span class="sep">→</span><span>Tape-out</span><span class="sep">→</span><span>Fab</span><span class="sep">→</span><span>Package &amp; test</span>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site">
+  <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:10px;">
+    <span>The Silicon Notebook</span>
+    <span>Written for engineers &amp; curious minds</span>
+  </div>
+</footer>
+
+</body>
+</html>
